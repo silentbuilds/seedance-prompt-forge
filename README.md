@@ -41,56 +41,6 @@ skill folder at the archive root, as these apps expect.
 3. Click **+ → Create skill → Upload a skill** and select the ZIP.
 4. Toggle the skill on and start a new chat.
 
-## Example
-
-A copy-ready 30-second prompt that binds one character image, one scene image, one motion
-video, and one audio reference. Duration and aspect ratio are set on the generation page.
-
-```text
-[Generation Goal]
-Generate a stylized 3D video. The central subject is the Street Performer (from @Image 1), and
-the primary event is a playful juggling-and-dance routine in Old Town Square (from @Image 2)
-that ends with a deep bow.
-
-[References]
-@Image 1 defines the street performer's face, hairstyle, red scarf, and worn blue jacket. Do not use the image's background or the people in the image.
-@Image 2 defines the old town square: cobblestones, a stone fountain, and warm dusk light. Do not use the people in the image.
-@Video 1 defines the pacing and camera path of the routine: one continuous orbit around the
-performer. Do not use the person's identity or clothing from the video.
-@Audio 1 defines the music style and rhythm. Do not use any speech from the clip.
-
-[Stage 1 - 0 to 10 seconds]
-Initial state: the street performer stands in the center of the square, the fountain behind
-him, holding three wooden balls.
-Primary event: he begins juggling the three balls while stepping forward and to the left,
-smiling at the growing crowd.
-End state: three balls arc through the air as he moves across the frame, still juggling.
-
-[Stage 2 - 10 to 20 seconds]
-Continue from the previous stage: same performer, same clothing, same square and dusk light;
-the camera keeps its single orbit.
-Primary event: he catches all three balls, spins once, and tips his hat with a flourish,
-then resumes juggling.
-End state: he holds all three balls again, hat tipped, facing the fountain.
-
-[Stage 3 - 20 to 30 seconds]
-Primary event: he tosses all three balls high in a single arc, catches them one by one, and
-finishes with a deep bow; the camera settles into a wide view of the square.
-End state: the performer stands bowed, the three balls resting at his feet, the fountain and
-square visible around him.
-
-[Maintain Consistency]
-Keep one street performer with the same face, hairstyle, red scarf, and blue jacket
-throughout. Keep the same square, fountain, cobblestones, and warm dusk light. Do not
-duplicate the performer or the balls. No subtitles and no on-screen text.
-
-[Audio]
-Music: (Upbeat folk-swing music from @Audio 1 plays throughout)
-Sound effects: <Soft crowd applause builds in the final seconds> <Wooden balls click as they
-are caught>
-No dialogue.
-```
-
 ## Install
 
 The repository root is the skill directory, so cloning it into an agent's skills path is a
