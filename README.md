@@ -11,6 +11,27 @@ Built as an [Agent Skill](https://agentskills.io), so it runs unmodified in Clau
 Claude Cowork, Codex CLI, Cursor, Cline, GitHub Copilot, Gemini CLI, and other agents that
 read the format — plus a single-file build for ChatGPT and other chat-only surfaces.
 
+## Add the skill in a browser (chatgpt.com, claude.ai)
+
+Browser chat apps can't clone a repository, so they install the skill from a file.
+Download `dist/seedance-prompt-forge.zip` — it contains the `seedance-prompt-forge/`
+skill folder at the archive root, as these apps expect.
+
+**chatgpt.com**
+
+1. Download `dist/seedance-prompt-forge.zip`.
+2. Open **Skills → Create → Upload from computer** (see below).
+3. Select the ZIP and confirm the upload.
+
+![Uploading a skill on chatgpt.com](docs/chatgpt-com-upload-skill.png)
+
+**claude.ai**
+
+1. Download `dist/seedance-prompt-forge.zip`.
+2. Go to **Settings → Skills** (also labelled **Customize → Skills**).
+3. Click **+ → Create skill → Upload a skill** and select the ZIP.
+4. Toggle the skill on and start a new chat.
+
 ## Install
 
 The repository root is the skill directory, so cloning it into an agent's skills path is a
@@ -48,17 +69,6 @@ git clone https://github.com/silentbuilds/seedance-prompt-forge && cd seedance-p
 ```
 
 Start a new session afterwards — skills are discovered at startup.
-
-**ChatGPT, Claude Projects, Gemini Gems, plain chat:**
-
-These have no filesystem, so progressive disclosure cannot work and everything must be inlined.
-
-1. Upload `dist/seedance-prompt-forge.bundle.md` as a knowledge file.
-2. Paste `dist/chatgpt-instructions.md` into the instructions field. It fits inside ChatGPT's
-   8,000-character limit and points at the sections of the knowledge file.
-
-Without code execution the linter cannot run; the skill falls back to nine equivalent checks
-performed by reading, and says so rather than claiming it ran them.
 
 ## Verify it loaded
 
