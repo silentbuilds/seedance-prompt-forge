@@ -49,44 +49,7 @@ git clone https://github.com/silentbuilds/seedance-prompt-forge && cd seedance-p
 
 Start a new session afterwards — skills are discovered at startup.
 
-### Upload the skill (ChatGPT and Claude.ai)
-
-For chat apps with a skill upload flow, download `dist/seedance-prompt-forge.zip` — a
-ready-made package with the `seedance-prompt-forge/` skill folder at the archive root.
-Regenerate it after edits with `python3 scripts/build_bundle.py`.
-
-**ChatGPT**
-
-1. Download `dist/seedance-prompt-forge.zip`.
-2. Open **Skills → Create → Upload from computer** (see below).
-3. Select the ZIP and confirm.
-
-![Uploading a skill on chatgpt.com](docs/chatgpt-com-upload-skill.png)
-
-Standalone skill upload is a ChatGPT desktop-app feature. On chatgpt.com web, skills are
-installed through plugins instead — if you don't see a Skills section, use the desktop app.
-
-**Claude.ai and Claude Desktop**
-
-1. Download `dist/seedance-prompt-forge.zip`.
-2. Go to **Settings → Skills** (also labelled **Customize → Skills**).
-3. Click **+ → Create skill → Upload a skill** and select the ZIP. The archive contains the
-   `seedance-prompt-forge/` folder at its root, as Claude expects.
-4. Toggle the skill on and start a new chat.
-
-**Codex — install from the repo by asking**
-
-In Codex CLI or the ChatGPT desktop app's Codex view, you can ask:
-
-> Use `$skill-installer` to install `silentbuilds/seedance-prompt-forge`.
-
-The installer downloads skills from repositories. Restart Codex if the skill doesn't appear.
-
-Can ChatGPT.com or Claude install it from the GitHub link just by asking? Not a documented
-flow — both install skills from an uploaded file (steps above). Prompt-based GitHub installs
-are only documented for Codex, via `$skill-installer`.
-
-**Custom GPTs, Claude Projects, Gemini Gems, plain chat (single-file route):**
+**ChatGPT, Claude Projects, Gemini Gems, plain chat:**
 
 These have no filesystem, so progressive disclosure cannot work and everything must be inlined.
 
