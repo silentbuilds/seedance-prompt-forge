@@ -1,15 +1,23 @@
 # Seedance Prompt Forge
 
-Write, audit, and repair prompts for Seedance 2.5 video generation.
+Write, audit, and optimize prompts for **Seedance 2.5 with Seedance Prompt Forge**, ByteDance's video generation model.
 
-Most Seedance repositories are prompt collections — you find something close and edit it. This
-one is a procedure. It takes your brief, binds every reference material to a named subject,
-applies the template for your task type, and runs a deterministic linter over the result
-before handing it back.
+Give Seedance Prompt Forge a rough brief and it names every subject, binds each reference
+image, video, and audio clip to the thing it defines, applies the template for your task type,
+and runs a deterministic linter over the draft before you spend a generation on it.
+
+Paste a generation that came out wrong and it works backwards. Swapped characters, identity
+or clothing drift, backgrounds leaking out of reference images, every reference appearing at
+once, events skipped or rushed, dialogue in the wrong language; each symptom maps to one
+smallest fix rather than a rewrite.
+
+Covers text-to-video, multi-reference generation, 30-second multi-stage videos, video editing,
+forward and backward extension, first/last frame and multi-keyframe sequences, storyboard
+grids, blockout re-rendering, one-click video, and seamless transitions.
 
 Built as an [Agent Skill](https://agentskills.io), so it runs unmodified in Claude Code,
-Claude Cowork, Codex CLI, Cursor, Cline, GitHub Copilot, Gemini CLI, and other agents that
-read the format — plus a single-file build for ChatGPT and other chat-only surfaces.
+Claude Cowork, Codex CLI, Cursor, Cline, GitHub Copilot, and Gemini CLI; plus a single-file
+build for ChatGPT and other chat-only surfaces.
 
 ## Add the skill in a browser (chatgpt.com, claude.ai)
 
@@ -20,7 +28,8 @@ skill folder at the archive root, as these apps expect.
 **chatgpt.com**
 
 1. Download `dist/seedance-prompt-forge.zip`.
-2. Open **Skills → Create → Upload from computer** (see below).
+2. Open **Settings → Plugins → Browse plugins → Skills**, click the **+** sign, and select
+   **Upload from your computer** — or go to <https://chatgpt.com/skills> and upload.
 3. Select the ZIP and confirm the upload.
 
 ![Uploading a skill on chatgpt.com](docs/chatgpt-com-upload-skill.png)
