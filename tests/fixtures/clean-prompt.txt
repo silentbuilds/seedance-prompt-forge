@@ -1,0 +1,7 @@
+@Image 1 defines <Conservator>'s facial features, hairstyle, and navy work shirt. Do not use the image background.
+@Image 2 defines the Conservation Lab's spatial layout and overhead lighting. Do not use the people in the image.
+@Video 1 defines the pacing and hand path of opening a hinged case with both hands. Do not use the person's identity, clothing, or scene from the video.
+
+<Conservator> opens a hinged sample case at the workbench, lifts the sample with tweezers, and holds it up to the light.
+Begin with a medium shot, push in slowly, then cut to a close-up.
+Dialogue language: American English. The conservator says quietly: {This one's intact.}

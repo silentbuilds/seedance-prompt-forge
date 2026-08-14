@@ -1,0 +1,7 @@
+@Images 1 through 4 define four characters respectively.
+@Image 1 shows a person. @Image 3 shows a lamp.
+Edit @Video 1 and replace the yellow lamp with the white one. Make it 16:9 and 10 seconds long.
+0-5 seconds: intro. 4-9 seconds: middle. 12-15 seconds: end.
+The presenter says: {Welcome back, everyone.}
+The subject stands in <a place we will decide later> holding <the prop>.
+Complete three actions in one second.

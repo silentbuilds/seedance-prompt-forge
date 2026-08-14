@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""Test the linter: it must pass clean prompts and catch broken ones.
+
+    python3 scripts/run_tests.py
+    python3 scripts/run_tests.py --guide path/to/official-guide.md
+
+Without --guide, runs the committed fixtures only. With it, additionally re-runs every
+filled example from the official prompt guide and fails if any produces an ERROR - a linter
+that rejects the source material is worse than no linter.
+"""
+import argparse, hashlib, pathlib, re, subprocess, sys, tempfile
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+LINT = ROOT / "scripts" / "lint_prompt.py"
+PLACEHOLDER = re.compile(r"<[a-z][^<>\n]{2,}>")
+
+
+def lint(path, task="generic"):
+    r = subprocess.run([sys.executable, str(LINT), str(path), "--task", task],
+                       capture_output=True, text=True)
+    return r.returncode, r.stdout
+
+
+def check_spec():
+    """Frontmatter must satisfy the Agent Skills spec, or the skill silently fails to load
+    in some agents. https://agentskills.io/specification"""
+    t = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    fm = t.split("---")[1]
+    name = re.search(r"^name:\s*(\S+)", fm, re.M)
+    name = name.group(1) if name else ""
+    desc = re.search(r"description:\s*>\n(.*?)\n\w[\w-]*:", fm, re.S)
+    desc = " ".join(desc.group(1).split()) if desc else ""
+    comp = re.search(r"compatibility:\s*>\n(.*?)\n\w[\w-]*:", fm, re.S)
+    comp = " ".join(comp.group(1).split()) if comp else ""
+    return [
+        (f"name matches directory {ROOT.name!r}", name == ROOT.name),
+        ("name is lowercase alphanumeric with single hyphens, 1-64 chars",
+         bool(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", name)) and len(name) <= 64),
+        (f"description 1-1024 chars (is {len(desc)})", 0 < len(desc) <= 1024),
+        (f"compatibility <=500 chars (is {len(comp)})", len(comp) <= 500),
+        ("version lives in metadata, not top-level",
+         not re.search(r"^version:", fm, re.M)),
+        (f"SKILL.md body <=500 lines (is {len(t.splitlines())})",
+         len(t.splitlines()) <= 500),
+        ("file references one level deep", not re.search(r"references/\w+/", t)),
+        ("every referenced file exists", all(
+            (ROOT / m).exists() for m in re.findall(r"`(references/[\w.-]+\.md)`", t))),
+    ]
+
+
+def check_bundle_fresh():
+    """dist/ is generated. A stale bundle ships wrong instructions to ChatGPT users."""
+    dist = ROOT / "dist" / "seedance-prompt-forge.bundle.md"
+    if not dist.exists():
+        return False, "dist/ missing - run scripts/build_bundle.py"
+    before = hashlib.sha256(dist.read_bytes()).hexdigest()
+    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_bundle.py")],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        return False, f"build_bundle.py failed:\n{r.stderr}"
+    after = hashlib.sha256(dist.read_bytes()).hexdigest()
+    if before != after:
+        return False, "dist/ is stale - run scripts/build_bundle.py and commit the result"
+    return True, ""
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--guide", help="official prompt guide markdown, for regression testing")
+    args = ap.parse_args()
+    failures = []
+
+    for label, ok in check_spec():
+        print(f"{'ok  ' if ok else 'FAIL'} spec: {label}")
+        if not ok:
+            failures.append(f"spec violation: {label}")
+
+    ok, msg = check_bundle_fresh()
+    print(f"{'ok  ' if ok else 'FAIL'} dist/ is up to date")
+    if not ok:
+        failures.append(msg)
+
+    rc, out = lint(ROOT / "tests/fixtures/clean-prompt.txt")
+    if rc != 0:
+        failures.append(f"clean-prompt.txt should pass:\n{out}")
+    else:
+        print("ok   clean fixture passes")
+
+    rc, out = lint(ROOT / "tests/fixtures/broken-prompt.txt", "edit")
+    codes = set(re.findall(r"\[ERROR\] ([\w-]+):", out))
+    expected = {"collective-binding", "unfilled-placeholder", "overlapping-range",
+                "frequency-demand", "locked-ratio", "locked-duration"}
+    if not expected <= codes:
+        failures.append(f"broken-prompt.txt missed {sorted(expected - codes)}")
+    else:
+        print(f"ok   broken fixture caught all {len(expected)} expected errors")
+
+    if args.guide:
+        text = pathlib.Path(args.guide).read_text(encoding="utf-8").replace("\\", "")
+        blocks = re.findall(r"```text\n(.*?)```", text, re.S)
+        filled = [b for b in blocks
+                  if not any(" " in m and m[1].islower() for m in PLACEHOLDER.findall(b))]
+        errs = 0
+        with tempfile.TemporaryDirectory() as d:
+            for i, b in enumerate(filled):
+                f = pathlib.Path(d) / f"ex{i:02d}.txt"
+                f.write_text(b, encoding="utf-8")
+                rc, out = lint(f)
+                if rc != 0:
+                    errs += 1
+                    failures.append(f"official example {i} rejected:\n{out}")
+        print(f"{'ok  ' if errs == 0 else 'FAIL'} {len(filled)} official examples, "
+              f"{errs} rejected (must be 0)")
+
+    if failures:
+        print("\n" + "\n\n".join(failures), file=sys.stderr)
+        print(f"\n{len(failures)} failure(s)", file=sys.stderr)
+        return 1
+    print("\nall tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

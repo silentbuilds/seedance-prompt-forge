@@ -1,0 +1,4 @@
+interface:
+  display_name: "Seedance Prompt Forge"
+  short_description: "Write, audit, and repair Seedance 2.5 video prompts"
+  default_prompt: "Use $seedance-prompt-forge to write an optimized Seedance 2.5 prompt from my idea and reference assets."

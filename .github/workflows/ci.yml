@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # No dependencies by design: the linter must run anywhere the skill does.
+      - name: Run tests
+        run: python3 scripts/run_tests.py
+      - name: Check the installer is syntactically valid
+        run: bash -n scripts/install.sh
