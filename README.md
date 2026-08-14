@@ -158,7 +158,7 @@ python3 scripts/run_tests.py --guide path/to/official-guide.md
 
 Two fixtures plus a regression run over every filled example in the official prompt guide. The
 linter must reject none of them — a linter that flags its own source material is worse than no
-linter. Current state: 29 examples, 0 errors, 4 warnings, all defensible tightenings.
+linter. Current state: 29 examples, 0 errors, 6 warnings, all defensible tightenings.
 
 ## Fidelity and scope
 

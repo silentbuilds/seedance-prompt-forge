@@ -223,7 +223,7 @@ def check_dialogue(text, rep):
     if text.count("{") != text.count("}"):
         rep.add("ERROR", "unbalanced-dialogue", "Unbalanced {} dialogue markers.")
     if text.count("\u3010") != text.count("\u3011"):
-        rep.add("ERROR", "unbalanced-subtitle", "Unbalanced [] subtitle markers.")
+        rep.add("ERROR", "unbalanced-subtitle", "Unbalanced 【】 subtitle markers.")
     for m in re.finditer(r"\{([^}]{1,400})\}", text):
         line = m.group(1)
         if not re.search(r"[\u4e00-\u9fff]", line):
