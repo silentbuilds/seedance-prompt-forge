@@ -13,9 +13,12 @@ CI checks that the bundle is not stale.
 
 import pathlib
 import sys
+import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "dist" / "seedance-prompt-forge.bundle.md"
+ZIP_OUT = ROOT / "dist" / "seedance-prompt-forge.zip"
+ZIP_ROOT = "seedance-prompt-forge"
 
 # Order matters: routing first, then the material it routes to.
 ORDER = [
@@ -58,6 +61,25 @@ def demote(md: str, levels: int = 1) -> str:
             line = "#" * levels + line
         out.append(line)
     return "\n".join(out)
+
+
+def build_zip() -> None:
+    """Package the skill folder for chat apps with a skill upload flow (ChatGPT
+    desktop app, Claude.ai, Claude Desktop). Deterministic output: fixed timestamps
+    and sorted paths so the generated archive is reproducible.
+    """
+    rels = ["SKILL.md", "LICENSE", "README.md", "agents/openai.yaml"]
+    rels += sorted(str(p.relative_to(ROOT)) for p in (ROOT / "references").glob("*.md"))
+    ZIP_OUT.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(ZIP_OUT, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for rel in rels:
+            src = ROOT / rel
+            if not src.exists():
+                raise FileNotFoundError(f"missing source for skill zip: {rel}")
+            info = zipfile.ZipInfo(f"{ZIP_ROOT}/{rel}", date_time=(2020, 1, 1, 0, 0, 0))
+            info.external_attr = 0o100644 << 16
+            zf.writestr(info, src.read_bytes())
+    print(f"wrote {ZIP_OUT.relative_to(ROOT)}")
 
 
 def main() -> int:
@@ -113,6 +135,8 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     text = "".join(parts).rstrip() + "\n"
     OUT.write_text(text, encoding="utf-8")
+
+    build_zip()
 
     words = len(text.split())
     print(f"wrote {OUT.relative_to(ROOT)}")

@@ -49,18 +49,22 @@ def check_spec():
 
 
 def check_bundle_fresh():
-    """dist/ is generated. A stale bundle ships wrong instructions to ChatGPT users."""
-    dist = ROOT / "dist" / "seedance-prompt-forge.bundle.md"
-    if not dist.exists():
-        return False, "dist/ missing - run scripts/build_bundle.py"
-    before = hashlib.sha256(dist.read_bytes()).hexdigest()
+    """dist/ is generated. A stale bundle or zip ships wrong instructions to users."""
+    names = ["seedance-prompt-forge.bundle.md", "seedance-prompt-forge.zip"]
+    dist_files = [ROOT / "dist" / n for n in names]
+    missing = [n for n, p in zip(names, dist_files) if not p.exists()]
+    if missing:
+        return False, f"dist/ missing {missing} - run scripts/build_bundle.py"
+    before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in dist_files}
     r = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_bundle.py")],
                        capture_output=True, text=True)
     if r.returncode != 0:
         return False, f"build_bundle.py failed:\n{r.stderr}"
-    after = hashlib.sha256(dist.read_bytes()).hexdigest()
-    if before != after:
-        return False, "dist/ is stale - run scripts/build_bundle.py and commit the result"
+    after = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in dist_files}
+    stale = [n for n in names if before[n] != after[n]]
+    if stale:
+        return False, (f"dist/ is stale ({', '.join(stale)}) - run "
+                       "scripts/build_bundle.py and commit the result")
     return True, ""
 
 
