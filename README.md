@@ -2,12 +2,14 @@
 
 Turn a rough brief or failed Seedance 2.5 generation into a validated, copy-ready prompt.
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 [![CI](https://github.com/silentbuilds/seedance-prompt-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/silentbuilds/seedance-prompt-forge/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/silentbuilds/seedance-prompt-forge)](https://github.com/silentbuilds/seedance-prompt-forge/releases/latest)
 [![License: MIT](https://img.shields.io/github/license/silentbuilds/seedance-prompt-forge)](LICENSE)
 
 [Install](#install) · [See the transformation](#before-and-after) ·
-[Download the latest skill ZIP][latest-zip]
+[Download the latest skill ZIP][latest-zip] · [More examples](#more-examples)
 
 Seedance Prompt Forge is an open [Agent Skill](https://agentskills.io) for writing, auditing,
 and repairing Seedance 2.5 video prompts. It names and binds every reference, structures
@@ -98,6 +100,18 @@ depends on the model, input materials, generation settings, and randomness.
 | Dialogue and performance | Language, voice, delivery, emotion, ambience, music, and SFX |
 
 ## Install
+
+### Skills CLI
+
+Install the public package into the current project with the open Skills CLI:
+
+```bash
+npx skills add silentbuilds/seedance-prompt-forge
+```
+
+This command was verified against the public repository: it finds the standard
+`skills/seedance-prompt-forge/` package and installs `SKILL.md`, the reference files, and the
+optional linter into `.agents/skills/seedance-prompt-forge/` for detected compatible agents.
 
 ### GitHub CLI — recommended
 
@@ -212,6 +226,12 @@ This repository targets Dreamina Seedance 2.5. Verify behavior before applying i
 to another Seedance version, provider, product surface, or API.
 
 Generation results vary with input materials, task complexity, settings, and randomness.
+
+## More examples
+
+- [Character consistency across multiple stages](docs/examples/seedance-character-consistency.md)
+- [Multimodal reference binding and exclusions](docs/examples/seedance-multimodal-reference-prompt.md)
+- [Fix identity drift, duplication, or splitting](docs/examples/fix-identity-drift-and-duplication.md)
 
 ## Contributing
 
