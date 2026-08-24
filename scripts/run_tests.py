@@ -22,6 +22,116 @@ def lint(path, task="generic"):
     return r.returncode, r.stdout
 
 
+def lint_text(text, task="generic"):
+    r = subprocess.run([sys.executable, str(LINT), "-", "--task", task], input=text,
+                       capture_output=True, text=True)
+    return r.returncode, r.stdout
+
+
+def check_linter_regressions():
+    """Every reproduced false-pass gets a matching safe case to prevent overcorrection."""
+    cases = [
+        ("an unbound cited reference is rejected",
+         "@Image 1 appears in the scene.\n@Image 2 defines the scene.",
+         "generic", "[ERROR] unbound-reference:", True),
+        ("a bound cited reference remains valid", "@Image 1 defines the actor.",
+         "generic", "[ERROR] unbound-reference:", False),
+        ("collective reference binding is rejected",
+         "@Images 1 through 4 define four characters respectively.",
+         "generic", "[ERROR] collective-binding:", True),
+        ("individual reference binding remains valid",
+         "@Image 1 defines Character A.\n@Image 2 defines Character B.",
+         "generic", "[ERROR] collective-binding:", False),
+        ("lowercase one-word placeholder is rejected", "<subject> walks into frame.",
+         "generic", "[ERROR] unfilled-placeholder:", True),
+        ("capitalized subject label remains valid", "<Conservator> walks into frame.",
+         "generic", "[ERROR] unfilled-placeholder:", False),
+        ("two bound image references expose a numbering gap",
+         "@Image 1 defines the actor.\n@Image 3 defines the prop.",
+         "generic", "[ERROR] numbering-gap:", True),
+        ("consecutive bound image references remain valid",
+         "@Image 1 defines the actor.\n@Image 2 defines the prop.",
+         "generic", "[ERROR] numbering-gap:", False),
+        ("reversed timeline blocks are rejected",
+         "5-10 seconds: finish.\n0-5 seconds: begin.",
+         "generic", "[ERROR] timeline-order:", True),
+        ("chronological timeline blocks remain valid",
+         "0-5 seconds: begin.\n5-10 seconds: finish.",
+         "generic", "[ERROR] timeline-order:", False),
+        ("a reversed time range is rejected", "10-5 seconds: action.",
+         "generic", "[ERROR] bad-range:", True),
+        ("a forward time range remains valid", "5-10 seconds: action.",
+         "generic", "[ERROR] bad-range:", False),
+        ("overlapping timeline ranges are rejected",
+         "0-5 seconds: begin.\n4-9 seconds: continue.",
+         "generic", "[ERROR] overlapping-range:", True),
+        ("consecutive timeline ranges remain valid",
+         "0-5 seconds: begin.\n5-9 seconds: continue.",
+         "generic", "[ERROR] overlapping-range:", False),
+        ("per-second frequency demands are rejected", "Complete three actions in one second.",
+         "generic", "[ERROR] frequency-demand:", True),
+        ("paced action wording remains valid", "Complete three actions across three seconds.",
+         "generic", "[ERROR] frequency-demand:", False),
+        ("locked aspect ratios are rejected", "Extend @Video 1 in 16:9.",
+         "extend", "[ERROR] locked-ratio:", True),
+        ("locked-ratio tasks without a ratio remain valid", "Extend @Video 1.",
+         "extend", "[ERROR] locked-ratio:", False),
+        ("locked edit durations are rejected", "Edit @Video 1. Duration: 10 seconds.",
+         "edit", "[ERROR] locked-duration:", True),
+        ("edit prompts without a duration remain valid", "Edit @Video 1.",
+         "edit", "[ERROR] locked-duration:", False),
+        ("resolution is still reported for a locked-ratio task",
+         "Resolution 4K.",
+         "extend", "[WARN] param-in-prompt:", True),
+        ("duration is still reported for a locked-ratio task",
+         "Duration: 10 seconds.",
+         "extend", "[WARN] param-in-prompt:", True),
+        ("parameter-free locked-ratio prompts remain valid",
+         "Extend @Video 1 after its final frame.",
+         "extend", "[WARN] param-in-prompt:", False),
+        ("scene references without exclusions are reported",
+         "@Image 1 defines the gallery background.",
+         "generic", "[WARN] missing-exclusion:", True),
+        ("scene references with exclusions remain valid",
+         "@Image 1 defines only the gallery layout. Do not use the people.",
+         "generic", "[WARN] missing-exclusion:", False),
+        ("replacement edits require timeline inheritance",
+         "Edit @Video 1, the sole editing master. Replace exactly one lamp.",
+         "edit", "[WARN] no-timeline-inheritance:", True),
+        ("replacement edits require an explicit target count",
+         "Edit @Video 1, the sole editing master. Replace the lamp.\n"
+         "[Timeline Inheritance]\nInherit all motion.",
+         "edit", "[WARN] no-count-lock:", True),
+        ("complete replacement edit structure remains valid",
+         "Edit @Video 1, the sole editing master. Replace exactly one lamp.\n"
+         "[Timeline Inheritance]\nInherit all motion.",
+         "edit", "[WARN] no-timeline-inheritance:", False),
+        ("complete replacement edit count remains valid",
+         "Edit @Video 1, the sole editing master. Replace exactly one lamp.\n"
+         "[Timeline Inheritance]\nInherit all motion.",
+         "edit", "[WARN] no-count-lock:", False),
+        ("unbalanced dialogue markers are rejected", "The actor says: {Hello.",
+         "generic", "[ERROR] unbalanced-dialogue:", True),
+        ("balanced dialogue markers remain valid",
+         "Dialogue language: English. The actor says: {Hello.}",
+         "generic", "[ERROR] unbalanced-dialogue:", False),
+        ("unbalanced subtitle markers are rejected", "【Chapter One",
+         "generic", "[ERROR] unbalanced-subtitle:", True),
+        ("balanced subtitle markers remain valid", "【Chapter One】",
+         "generic", "[ERROR] unbalanced-subtitle:", False),
+        ("non-Chinese dialogue without a language is reported", "The actor says: {Hello.}",
+         "generic", "[WARN] unmarked-dialogue-language:", True),
+        ("non-Chinese dialogue with a language remains valid",
+         "Dialogue language: English. The actor says: {Hello.}",
+         "generic", "[WARN] unmarked-dialogue-language:", False),
+    ]
+    checks = []
+    for label, prompt, task, marker, expected in cases:
+        _, out = lint_text(prompt, task)
+        checks.append((label, (marker in out) is expected))
+    return checks
+
+
 def check_spec():
     """Frontmatter must satisfy the Agent Skills spec, or the skill silently fails to load
     in some agents. https://agentskills.io/specification"""
@@ -142,6 +252,11 @@ def main():
         print(f"{'ok  ' if ok else 'FAIL'} distribution: {label}")
         if not ok:
             failures.append(f"distribution violation: {label}")
+
+    for label, ok in check_linter_regressions():
+        print(f"{'ok  ' if ok else 'FAIL'} linter: {label}")
+        if not ok:
+            failures.append(f"linter regression: {label}")
 
     ok, msg = check_bundle_fresh()
     print(f"{'ok  ' if ok else 'FAIL'} dist/ is up to date")

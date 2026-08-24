@@ -32,8 +32,9 @@ COLLECTIVE = re.compile(
 )
 RATIO = re.compile(r"\b(16:9|9:16|4:3|3:4|1:1|21:9|aspect ratio|widescreen|vertical format)\b", re.I)
 DURATION = re.compile(
-    r"\b(\d+\s*(?:-|to)?\s*\d*\s*(?:second|sec|minute)s?\s+(?:long|video|clip|duration)"
-    r"|duration\s*(?:of|:)|make it \d+\s*seconds)\b", re.I
+    r"(?:\b\d+\s*(?:-|to)?\s*\d*\s*(?:second|sec|minute)s?\s+"
+    r"(?:long|video|clip|duration)\b|\bduration\s*(?:of\b|:)|"
+    r"\bmake it \d+\s*seconds\b)", re.I
 )
 RESOLUTION = re.compile(r"\b(\d{3,4}p|4K|1080|720|resolution)\b", re.I)
 FREQUENCY = re.compile(r"\b(\w+|\d+)\s+(?:actions?|movements?|cuts?|shots?)\s+in\s+one\s+second\b", re.I)
@@ -105,7 +106,7 @@ def check_bindings(text, rep):
     for kind in ("Image", "Video", "Audio"):
         nums = sorted(n for k, n in cited if k == kind)
         bound = [n for k, n in roles if k == kind]
-        if not nums or len(bound) < 3:
+        if not nums or len(bound) < 2:
             # too few bound references of this kind to establish an intended sequence
             continue
         if nums[0] != 1:
@@ -146,8 +147,9 @@ def check_collective(text, rep):
 def check_placeholders(text, rep):
     # strip fenced code that is explicitly marked as a template
     hits = {m.group(0) for m in PLACEHOLDER.finditer(text)}
-    # angle-bracket subject names like <Conservator> are single capitalised words - allowed
-    unfilled = {h for h in hits if " " in h and h[1].islower()}
+    # Angle-bracket subject names like <Conservator> are capitalised labels. Lowercase
+    # values, including a one-word <subject>, are template placeholders.
+    unfilled = {h for h in hits if h[1].islower()}
     if unfilled:
         rep.add("ERROR", "unfilled-placeholder",
                 f"{len(unfilled)} unfilled placeholder(s): "
@@ -161,6 +163,11 @@ def check_timing(text, rep):
     for a, b, raw in ranges:
         if b <= a:
             rep.add("ERROR", "bad-range", f"Time range {raw!r} does not move forward.")
+    for (a1, _, previous), (a2, _, current) in zip(ranges, ranges[1:]):
+        if a2 < a1:
+            rep.add("ERROR", "timeline-order",
+                    f"{current!r} appears after {previous!r} but starts earlier. "
+                    "Write timeline blocks in chronological order.")
     ordered = sorted(ranges, key=lambda r: r[0])
     for (a1, b1, r1), (a2, b2, r2) in zip(ordered, ordered[1:]):
         if a2 < b1:
@@ -192,9 +199,12 @@ def check_locked_params(text, task, rep):
 
 
 def check_params_in_prompt(text, rep, task):
-    if task in LOCKED:
-        return  # already covered, with a stronger message
-    for label, pat in (("aspect ratio", RATIO), ("duration", DURATION), ("resolution", RESOLUTION)):
+    locked = set(LOCKED.get(task, []))
+    for key, label, pat in (("ratio", "aspect ratio", RATIO),
+                            ("duration", "duration", DURATION),
+                            ("resolution", "resolution", RESOLUTION)):
+        if key in locked:
+            continue  # already covered by check_locked_params with a stronger message
         m = pat.search(text)
         if m:
             rep.add("WARN", "param-in-prompt",
