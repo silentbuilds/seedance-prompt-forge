@@ -75,6 +75,58 @@ def check_bundle_fresh():
     return True, ""
 
 
+def check_distribution():
+    """The documented install path and fallback installer must stay safe and portable."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    checks = [
+        ("README previews the skill before installation",
+         "gh skill preview silentbuilds/seedance-prompt-forge seedance-prompt-forge" in readme),
+        ("README uses the standard GitHub skill installer",
+         "gh skill install silentbuilds/seedance-prompt-forge seedance-prompt-forge" in readme),
+        ("README uses the current Codex personal skill path",
+         "~/.agents/skills/" in readme and "~/.codex/skills/" not in readme),
+    ]
+
+    installer = ROOT / "scripts" / "install.sh"
+    with tempfile.TemporaryDirectory() as tmp:
+        scratch = pathlib.Path(tmp)
+        project = scratch / "target-project"
+        project.mkdir()
+
+        missing_target = subprocess.run(
+            ["bash", str(installer), "--project"], cwd=scratch,
+            capture_output=True, text=True)
+        checks.append(("--project requires an explicit target path",
+                       missing_target.returncode != 0))
+
+        first = subprocess.run(
+            ["bash", str(installer), "--project", str(project)], cwd=scratch,
+            capture_output=True, text=True)
+        installed = project / ".agents" / "skills" / "seedance-prompt-forge"
+        checks.append(("explicit project install writes to the requested project",
+                       first.returncode == 0 and (installed / "SKILL.md").is_file()))
+
+        if installed.is_dir():
+            sentinel = installed / "keep-existing-install.txt"
+            sentinel.write_text("preserve me", encoding="utf-8")
+            refused = subprocess.run(
+                ["bash", str(installer), "--project", str(project)], cwd=scratch,
+                capture_output=True, text=True)
+            checks.append(("existing installs are preserved unless --force is supplied",
+                           refused.returncode != 0 and sentinel.is_file()))
+
+            forced = subprocess.run(
+                ["bash", str(installer), "--force", "--project", str(project)], cwd=scratch,
+                capture_output=True, text=True)
+            backups = list(installed.parent.glob("seedance-prompt-forge.backup-*"))
+            checks.append(("--force replaces the install after creating a backup",
+                           forced.returncode == 0
+                           and (installed / "SKILL.md").is_file()
+                           and any((backup / sentinel.name).is_file() for backup in backups)))
+
+    return checks
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--guide", help="official prompt guide markdown, for regression testing")
@@ -85,6 +137,11 @@ def main():
         print(f"{'ok  ' if ok else 'FAIL'} spec: {label}")
         if not ok:
             failures.append(f"spec violation: {label}")
+
+    for label, ok in check_distribution():
+        print(f"{'ok  ' if ok else 'FAIL'} distribution: {label}")
+        if not ok:
+            failures.append(f"distribution violation: {label}")
 
     ok, msg = check_bundle_fresh()
     print(f"{'ok  ' if ok else 'FAIL'} dist/ is up to date")

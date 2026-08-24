@@ -43,10 +43,17 @@ skill folder at the archive root, as these apps expect.
 
 ## Install
 
-The distributable skill is in `skills/seedance-prompt-forge/`. Clone the repository, then
-copy that folder into your agent's skills path.
+Preview the skill, then install it with GitHub CLI:
 
-**One agent:**
+```bash
+gh skill preview silentbuilds/seedance-prompt-forge seedance-prompt-forge
+gh skill install silentbuilds/seedance-prompt-forge seedance-prompt-forge
+```
+
+The distributable skill is in `skills/seedance-prompt-forge/`. If GitHub CLI is unavailable,
+clone the repository and copy that folder into your agent's skills path.
+
+**Manual fallback for one agent:**
 
 ```bash
 git clone https://github.com/silentbuilds/seedance-prompt-forge
@@ -59,7 +66,7 @@ Swap the path for your agent:
 | Agent | Personal | Project |
 |---|---|---|
 | Claude Code / Cowork | `~/.claude/skills/` | `.claude/skills/` |
-| Codex CLI | `~/.codex/skills/` | `.codex/skills/` |
+| Codex CLI | `~/.agents/skills/` | `.agents/skills/` |
 | Cursor | — | `.cursor/skills/` |
 | GitHub Copilot | — | `.github/skills/` |
 | Gemini CLI | `~/.gemini/skills/` | `.gemini/skills/` |
@@ -74,8 +81,15 @@ for a skill committed to a shared repo.
 git clone https://github.com/silentbuilds/seedance-prompt-forge && cd seedance-prompt-forge
 ./scripts/install.sh              # every agent detected on this machine
 ./scripts/install.sh claude codex # or name them
-./scripts/install.sh --project    # into this project, all neutral + vendor paths
+./scripts/install.sh --project /path/to/your-project
 ./scripts/install.sh --list       # show paths without writing anything
+```
+
+The fallback installer refuses to overwrite an existing installation. Add `--force` to back
+up the existing folder and replace it, for example:
+
+```bash
+./scripts/install.sh --force --project /path/to/your-project
 ```
 
 Start a new session afterwards — skills are discovered at startup.
