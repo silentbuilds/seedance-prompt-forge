@@ -189,6 +189,13 @@ def check_distribution():
     """The documented install path and fallback installer must stay safe and portable."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     checks = [
+        ("README leads with a concrete before-and-after example",
+         "## Before and after" in readme
+         and "Create a 30-second vertical video" in readme
+         and "[Generation Goal]" in readme),
+        ("README explains the optimization choices",
+         "Explicit reference roles" in readme and "Observable performance" in readme
+         and "Continuity and end states" in readme),
         ("README previews the skill before installation",
          "gh skill preview silentbuilds/seedance-prompt-forge seedance-prompt-forge" in readme),
         ("README uses the standard GitHub skill installer",
