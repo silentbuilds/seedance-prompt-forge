@@ -156,6 +156,8 @@ def check_spec():
         (f"compatibility <=500 chars (is {len(comp)})", len(comp) <= 500),
         ("version lives in metadata, not top-level",
          not re.search(r"^version:", fm, re.M)),
+        ("pre-1.0 release version is 0.1.0",
+         bool(re.search(r'^\s+version:\s*["\']0\.1\.0["\']\s*$', fm, re.M))),
         (f"SKILL.md body <=500 lines (is {len(t.splitlines())})",
          len(t.splitlines()) <= 500),
         ("file references one level deep", not re.search(r"references/\w+/", t)),
