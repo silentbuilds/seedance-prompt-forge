@@ -43,14 +43,15 @@ skill folder at the archive root, as these apps expect.
 
 ## Install
 
-The repository root is the skill directory, so cloning it into an agent's skills path is a
-complete install.
+The distributable skill is in `skills/seedance-prompt-forge/`. Clone the repository, then
+copy that folder into your agent's skills path.
 
 **One agent:**
 
 ```bash
-git clone https://github.com/silentbuilds/seedance-prompt-forge \
-  ~/.claude/skills/seedance-prompt-forge     # Claude Code, Claude Cowork
+git clone https://github.com/silentbuilds/seedance-prompt-forge
+cp -R seedance-prompt-forge/skills/seedance-prompt-forge \
+  ~/.claude/skills/                           # Claude Code, Claude Cowork
 ```
 
 Swap the path for your agent:
@@ -86,11 +87,11 @@ type `/` and look for it in the list.
 
 ## The linter
 
-`scripts/lint_prompt.py` checks the mechanically checkable half of the pre-submission
-checklist. No dependencies, Python 3.8+.
+`skills/seedance-prompt-forge/scripts/lint_prompt.py` checks the mechanically checkable half
+of the pre-submission checklist. No dependencies, Python 3.8+.
 
 ```bash
-python3 scripts/lint_prompt.py my-prompt.txt --task edit
+python3 skills/seedance-prompt-forge/scripts/lint_prompt.py my-prompt.txt --task edit
 ```
 
 It catches: references used but never bound to a role · gaps in reference numbering ·

@@ -11,7 +11,8 @@ that rejects the source material is worse than no linter.
 import argparse, hashlib, pathlib, re, subprocess, sys, tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-LINT = ROOT / "scripts" / "lint_prompt.py"
+SKILL_ROOT = ROOT / "skills" / "seedance-prompt-forge"
+LINT = SKILL_ROOT / "scripts" / "lint_prompt.py"
 PLACEHOLDER = re.compile(r"<[a-z][^<>\n]{2,}>")
 
 
@@ -24,7 +25,7 @@ def lint(path, task="generic"):
 def check_spec():
     """Frontmatter must satisfy the Agent Skills spec, or the skill silently fails to load
     in some agents. https://agentskills.io/specification"""
-    t = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    t = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     fm = t.split("---")[1]
     name = re.search(r"^name:\s*(\S+)", fm, re.M)
     name = name.group(1) if name else ""
@@ -33,7 +34,12 @@ def check_spec():
     comp = re.search(r"compatibility:\s*>\n(.*?)\n\w[\w-]*:", fm, re.S)
     comp = " ".join(comp.group(1).split()) if comp else ""
     return [
-        (f"name matches directory {ROOT.name!r}", name == ROOT.name),
+        ("standard distributable path is skills/<skill-name>/SKILL.md",
+         SKILL_ROOT.is_dir() and (SKILL_ROOT / "SKILL.md").is_file()),
+        ("distributable skill includes its license",
+         (SKILL_ROOT / "LICENSE").is_file()
+         and (SKILL_ROOT / "LICENSE").read_bytes() == (ROOT / "LICENSE").read_bytes()),
+        (f"name matches directory {SKILL_ROOT.name!r}", name == SKILL_ROOT.name),
         ("name is lowercase alphanumeric with single hyphens, 1-64 chars",
          bool(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", name)) and len(name) <= 64),
         (f"description 1-1024 chars (is {len(desc)})", 0 < len(desc) <= 1024),
@@ -44,7 +50,8 @@ def check_spec():
          len(t.splitlines()) <= 500),
         ("file references one level deep", not re.search(r"references/\w+/", t)),
         ("every referenced file exists", all(
-            (ROOT / m).exists() for m in re.findall(r"`(references/[\w.-]+\.md)`", t))),
+            (SKILL_ROOT / m).exists()
+            for m in re.findall(r"`(references/[\w.-]+\.md)`", t))),
     ]
 
 

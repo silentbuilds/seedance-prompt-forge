@@ -15,9 +15,10 @@ import pathlib
 import sys
 import zipfile
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "dist" / "seedance-prompt-forge.bundle.md"
-ZIP_OUT = ROOT / "dist" / "seedance-prompt-forge.zip"
+REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+SKILL_ROOT = REPO_ROOT / "skills" / "seedance-prompt-forge"
+OUT = REPO_ROOT / "dist" / "seedance-prompt-forge.bundle.md"
+ZIP_OUT = REPO_ROOT / "dist" / "seedance-prompt-forge.zip"
 ZIP_ROOT = "seedance-prompt-forge"
 
 # Order matters: routing first, then the material it routes to.
@@ -68,34 +69,37 @@ def build_zip() -> None:
     desktop app, Claude.ai, Claude Desktop). Deterministic output: fixed timestamps
     and sorted paths so the generated archive is reproducible.
     """
-    rels = ["SKILL.md", "LICENSE", "README.md", "agents/openai.yaml"]
-    rels += sorted(str(p.relative_to(ROOT)) for p in (ROOT / "references").glob("*.md"))
+    rels = sorted(
+        str(path.relative_to(SKILL_ROOT))
+        for path in SKILL_ROOT.rglob("*")
+        if path.is_file()
+    )
     ZIP_OUT.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(ZIP_OUT, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for rel in rels:
-            src = ROOT / rel
+            src = SKILL_ROOT / rel
             if not src.exists():
                 raise FileNotFoundError(f"missing source for skill zip: {rel}")
             info = zipfile.ZipInfo(f"{ZIP_ROOT}/{rel}", date_time=(2020, 1, 1, 0, 0, 0))
             info.external_attr = 0o100644 << 16
             zf.writestr(info, src.read_bytes())
-    print(f"wrote {ZIP_OUT.relative_to(ROOT)}")
+    print(f"wrote {ZIP_OUT.relative_to(REPO_ROOT)}")
 
 
 def main() -> int:
-    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
     # drop YAML frontmatter - meaningless when pasted into a chat box
     if skill.startswith("---"):
         skill = skill.split("---", 2)[2].lstrip("\n")
 
     parts = [HEADER, demote(skill, 1), "\n\n---\n"]
 
-    missing = [p for p in ORDER if not (ROOT / p).exists()]
+    missing = [p for p in ORDER if not (SKILL_ROOT / p).exists()]
     if missing:
         print(f"error: missing source files: {missing}", file=sys.stderr)
         return 1
     for rel in ORDER:
-        body = (ROOT / rel).read_text(encoding="utf-8")
+        body = (SKILL_ROOT / rel).read_text(encoding="utf-8")
         parts.append(f"\n## Inlined: `{rel}`\n\n")
         parts.append(demote(body, 2))
         parts.append("\n\n---\n")
@@ -139,9 +143,9 @@ def main() -> int:
     build_zip()
 
     words = len(text.split())
-    print(f"wrote {OUT.relative_to(ROOT)}")
+    print(f"wrote {OUT.relative_to(REPO_ROOT)}")
     print(f"  {len(text):,} chars, ~{words:,} words, ~{int(words * 1.4):,} tokens (rough)")
-    print(f"wrote {COMPACT.relative_to(ROOT)}")
+    print(f"wrote {COMPACT.relative_to(REPO_ROOT)}")
     status = "fits" if len(compact) <= 8000 else "OVER LIMIT"
     print(f"  {len(compact):,} chars - {status} the 8,000-char instructions field")
     if len(text) > 8000:

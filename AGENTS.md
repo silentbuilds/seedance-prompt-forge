@@ -1,18 +1,20 @@
 # AGENTS.md
 
 Context for AI coding agents working **on this repository**. If you are looking for how to
-*use* the skill, read `SKILL.md` instead — that is the product.
+*use* the skill, read `skills/seedance-prompt-forge/SKILL.md` instead — that is the product.
 
 ## What this is
 
 `seedance-prompt-forge` is a single Agent Skill: a procedure for writing, auditing, and
-repairing prompts for Seedance 2.5 video generation. The repository root *is* the skill
-directory, so cloning it into any agent's skills path installs it.
+repairing prompts for Seedance 2.5 video generation. The distributable skill lives under
+`skills/seedance-prompt-forge/`; repository-level files support development and release.
 
-- `SKILL.md` — routing and universal rules. Loaded whenever the skill activates. Keep under
-  500 lines and roughly 5,000 tokens.
-- `references/*.md` — task-specific templates. Loaded on demand, one level deep only.
-- `scripts/lint_prompt.py` — deterministic checks. No third-party dependencies. Python 3.8+.
+- `skills/seedance-prompt-forge/SKILL.md` — routing and universal rules. Loaded whenever the
+  skill activates. Keep under 500 lines and roughly 5,000 tokens.
+- `skills/seedance-prompt-forge/references/*.md` — task-specific templates. Loaded on demand,
+  one level deep only.
+- `skills/seedance-prompt-forge/scripts/lint_prompt.py` — deterministic checks. No third-party
+  dependencies. Python 3.8+.
 - `dist/` — generated. Never edit by hand.
 
 ## Commands
@@ -42,7 +44,7 @@ official Dreamina Seedance 2.5 prompt guide. When you add or change guidance:
 this. Any new check has to survive all 29 filled examples with zero errors before it ships.
 Warnings are acceptable where they represent a defensible tightening; errors are not.
 
-**Regenerate `dist/` after touching `SKILL.md` or `references/`.** The bundle is what
+**Regenerate `dist/` after touching the skill's `SKILL.md` or `references/`.** The bundle is what
 chat-only surfaces consume; a stale bundle ships wrong instructions to ChatGPT and Claude
 Project users.
 

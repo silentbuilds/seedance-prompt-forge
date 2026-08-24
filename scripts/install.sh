@@ -11,7 +11,8 @@
 set -euo pipefail
 
 NAME="seedance-prompt-forge"
-SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRC="$REPO_ROOT/skills/$NAME"
 
 # agent : destination directory
 PERSONAL=(
