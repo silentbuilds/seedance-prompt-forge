@@ -237,6 +237,32 @@ def check_distribution():
     return checks
 
 
+def check_provenance():
+    sources_path = ROOT / "SOURCES.md"
+    if not sources_path.is_file():
+        return [("repository includes a source manifest", False)]
+    sources = sources_path.read_text(encoding="utf-8")
+    skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    lark_url = "https://bytedance.larkoffice.com/docx/A88jd0B47oAd8zxWp5ycZFMfnxh"
+    byteplus_url = "https://docs.byteplus.com/en/docs/ModelArk/2607689"
+    return [
+        ("repository includes a source manifest", True),
+        ("source manifest names and links the exact English guide",
+         "Dreamina Seedance 2.5 Prompt Writing Guide" in sources and lark_url in sources),
+        ("source manifest links the guide's official BytePlus release",
+         byteplus_url in sources),
+        ("source manifest records its verification date", "2026-08-24" in sources),
+        ("source manifest separates documented rules from tested inference",
+         "Documented guidance" in sources and "Tested implementation" in sources
+         and "Working inference" in sources),
+        ("source manifest states Dreamina and API applicability", "dreamina" in sources.lower()
+         and "api" in sources.lower() and "other seedance versions" in sources.lower()),
+        ("runtime skill links an exact primary source", byteplus_url in skill),
+        ("README links the source manifest", "[source provenance](SOURCES.md)" in readme),
+    ]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--guide", help="official prompt guide markdown, for regression testing")
@@ -252,6 +278,11 @@ def main():
         print(f"{'ok  ' if ok else 'FAIL'} distribution: {label}")
         if not ok:
             failures.append(f"distribution violation: {label}")
+
+    for label, ok in check_provenance():
+        print(f"{'ok  ' if ok else 'FAIL'} provenance: {label}")
+        if not ok:
+            failures.append(f"provenance violation: {label}")
 
     for label, ok in check_linter_regressions():
         print(f"{'ok  ' if ok else 'FAIL'} linter: {label}")

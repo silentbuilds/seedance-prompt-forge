@@ -20,10 +20,11 @@ Turn an idea, draft prompt, reference set, or failed generation into a copy-read
 prompt. Prompts are flexible natural language built from optional components; every reference
 material gets an explicit role.
 
-Source: the official Dreamina Seedance 2.5 prompt guide. Do not apply these templates to other
-Seedance versions without checking that version's own guidance. Platform behaviours described
-here (locked parameters, multimodal reference mode) are documented for Dreamina; verify before
-assuming an API surface behaves identically.
+Sources: the [Dreamina Seedance 2.5 Prompt Writing Guide](https://bytedance.larkoffice.com/docx/A88jd0B47oAd8zxWp5ycZFMfnxh)
+and its [official BytePlus release](https://docs.byteplus.com/en/docs/ModelArk/2607689). Do not
+apply these templates to other Seedance versions without checking that version's own guidance.
+Platform behaviours described here are documented for Dreamina or for the surfaces the guide
+explicitly names; verify the controls available on the user's product or API.
 
 ### Pick a route
 

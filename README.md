@@ -127,9 +127,11 @@ linter. Current state: 29 examples, 0 errors, 6 warnings, all defensible tighten
 
 ## Fidelity and scope
 
-Built from the official Dreamina Seedance 2.5 prompt guide. Where this skill states something
-the guide does not — for example, how the platform assigns `@Image` numbers — it says so
-inline rather than presenting the inference as documented behaviour.
+Built from the official Dreamina Seedance 2.5 prompt guide. See the exact guide editions,
+verification date, applicability boundaries, and evidence classifications in
+[source provenance](SOURCES.md). Where this skill states something the guide does not — for
+example, how the platform assigns `@Image` numbers — it says so inline rather than presenting
+the inference as documented behaviour.
 
 Platform behaviours described here (locked aspect ratio and duration, multimodal reference
 mode) are documented for Dreamina. Verify before assuming an API surface behaves identically.

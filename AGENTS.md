@@ -36,7 +36,8 @@ official Dreamina Seedance 2.5 prompt guide. When you add or change guidance:
 - If the guide states it, state it the same way. Do not compress a structured block template
   into prose — block structure is what users copy.
 - If the guide does not state it, either leave it out or mark it inline as an assumption. The
-  `@Image` numbering note in `references/reference-materials.md` is the worked example of how
+  `@Image` numbering note in
+  `skills/seedance-prompt-forge/references/reference-materials.md` is the worked example of how
   to phrase an unsourced inference.
 - Never present an inference as documented platform behaviour.
 
