@@ -18,7 +18,7 @@ compatibility: >
   scripts/ needs Python 3.8+ and code execution. Without code execution, follow the manual
   checklist instead - see "Running without code execution".
 metadata:
-  version: "2.0.0"
+  version: "2.0.1"
   author: seedance-prompt-forge
   source-guide: Dreamina Seedance 2.5 official prompt guide
 ---

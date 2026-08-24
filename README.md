@@ -22,12 +22,12 @@ build for ChatGPT and other chat-only surfaces.
 ## Add the skill in a browser (chatgpt.com, claude.ai)
 
 Browser chat apps can't clone a repository, so they install the skill from a file.
-Download `dist/seedance-prompt-forge.zip` — it contains the `seedance-prompt-forge/`
-skill folder at the archive root, as these apps expect.
+[Download the latest skill ZIP][latest-zip] — it contains the `seedance-prompt-forge/` skill
+folder at the archive root, as these apps expect.
 
 **chatgpt.com**
 
-1. Download `dist/seedance-prompt-forge.zip`.
+1. [Download the latest skill ZIP][latest-zip].
 2. Open **Settings → Plugins → Browse plugins → Skills**, click the **+** sign, and select
    **Upload from your computer** — or go to <https://chatgpt.com/skills> and upload.
 3. Select the ZIP and confirm the upload.
@@ -36,7 +36,7 @@ skill folder at the archive root, as these apps expect.
 
 **claude.ai**
 
-1. Download `dist/seedance-prompt-forge.zip`.
+1. [Download the latest skill ZIP][latest-zip].
 2. Go to **Settings → Skills** (also labelled **Customize → Skills**).
 3. Click **+ → Create skill → Upload a skill** and select the ZIP.
 4. Toggle the skill on and start a new chat.
@@ -153,3 +153,5 @@ BytePlus, or Dreamina. Seedance and Dreamina are trademarks of their respective 
 ## License
 
 MIT — see `LICENSE`.
+
+[latest-zip]: https://github.com/silentbuilds/seedance-prompt-forge/releases/latest/download/seedance-prompt-forge.zip

@@ -18,3 +18,7 @@ jobs:
         run: python3 scripts/run_tests.py
       - name: Check the installer is syntactically valid
         run: bash -n scripts/install.sh
+      - name: Validate the GitHub skill package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh skill publish --dry-run

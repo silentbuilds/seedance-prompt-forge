@@ -195,6 +195,12 @@ def check_distribution():
          "gh skill install silentbuilds/seedance-prompt-forge seedance-prompt-forge" in readme),
         ("README uses the current Codex personal skill path",
          "~/.agents/skills/" in readme and "~/.codex/skills/" not in readme),
+        ("README links the stable latest-release ZIP",
+         "https://github.com/silentbuilds/seedance-prompt-forge/releases/latest/download/"
+         "seedance-prompt-forge.zip" in readme),
+        ("CI validates the GitHub skill package",
+         "gh skill publish --dry-run" in
+         (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")),
     ]
 
     installer = ROOT / "scripts" / "install.sh"
